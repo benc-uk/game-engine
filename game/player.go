@@ -7,8 +7,10 @@ import (
 )
 
 type Player struct {
-	pos      *Point
+	pos      *Point3
 	angle    float64
+	angleCos float64
+	angleSin float64
 	look     float64
 	speed    float64
 	inputDir Direction
@@ -26,6 +28,9 @@ func (p *Player) processInputs() {
 		if p.angle >= fullCircle {
 			p.angle -= fullCircle
 		}
+
+		p.angleCos = math.Cos(p.angle)
+		p.angleSin = math.Sin(p.angle)
 	}
 
 	// Turn the player right
@@ -34,6 +39,9 @@ func (p *Player) processInputs() {
 		if p.angle < 0 {
 			p.angle += fullCircle
 		}
+
+		p.angleCos = math.Cos(p.angle)
+		p.angleSin = math.Sin(p.angle)
 	}
 
 	// Move the player forward, backwards, or strafe

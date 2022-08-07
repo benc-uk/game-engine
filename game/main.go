@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -10,10 +11,13 @@ import (
 
 const windowScale = 2
 
+var Version = "0.0.0"
+
 func main() {
+	fmt.Println("Starting, version", Version)
 	rand.Seed(time.Now().UnixNano())
 
-	g := NewGame(4)
+	g := NewGame(3)
 
 	ebiten.SetWindowSize(g.width*windowScale, g.height*windowScale)
 	ebiten.SetWindowPosition(0, 0)

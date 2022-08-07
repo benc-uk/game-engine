@@ -12,8 +12,6 @@ linters:
     - stylecheck  # A few Go style rules
     - nosnakecase # We are not writing Python here
     - misspell    # Find misspelled words
-    - cyclop      # Find cyclomatic complexity
-    - gocyclo     # Also find cyclomatic complexity
     - bodyclose   # Check for HTTP body close errors
     - nilerr      # Find bad nil/err handling
     - nilnil      # Also find bad nil/err handling

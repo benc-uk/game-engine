@@ -1,14 +1,13 @@
 # Common variables
-VERSION := 0.0.1
-BUILD_INFO := Manual build 
+VERSION ?= 0.0.1
 
 # Things you don't want to change
 REPO_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 # Tools
-GOLINT_PATH := $(REPO_DIR)/bin/golangci-lint              # Remove if not using Go
-AIR_PATH := $(REPO_DIR)/bin/air                           # Remove if not using Go
+GOLINT_PATH := $(REPO_DIR)/bin/golangci-lint
+AIR_PATH := $(REPO_DIR)/bin/air
 
-.PHONY: help image push build run lint lint-fix
+.PHONY: help build run lint lint-fix clean
 .DEFAULT_GOAL := help
 
 help: ## 💬 This help message :)
@@ -28,11 +27,16 @@ lint-fix: ## 🔍 Lint & format, will try to fix errors and modify code
 	@figlet $@ || true
 	golangci-lint run --modules-download-mode=mod --fix ./...
 
-build: ## 🔨 Run a local build without a container
+build: ## 🔨 Run a local build for all platforms
 	@figlet $@ || true
-	go build -o ./bin/game ./...
-	go build -o ./bin/game.exe ./...
+	GOOS=linux GOARCH=amd64 go build -o ./bin/game -ldflags="-X 'main.Version=$(VERSION)'" ./...
+	GOOS=windows GOARCH=amd64 go build -o ./bin/game.exe -ldflags="-X 'main.Version=$(VERSION)'" ./...
 
-run: ## 🏃‍♂️ Run application, used for local development
+run: ## 🏃 Run application with hot reloading
 	@figlet $@ || true
 	$(AIR_PATH) -c .air.toml
+
+clean: ## 🧹 Clean up local 
+	@figlet $@ || true
+	rm -rf ./bin/game*
+	rm -rf ./tmp/*

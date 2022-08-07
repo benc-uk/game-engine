@@ -8,8 +8,8 @@ import (
 
 type Player struct {
 	pos      *Point
-	a        float64
-	l        float64
+	angle    float64
+	look     float64
 	speed    float64
 	inputDir Direction
 }
@@ -20,20 +20,23 @@ const accel = 0.5
 const maxSpeed = 7
 
 func (p *Player) processInputs() {
+	// Turn the player left
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
-		p.a += turnSpeed
-		if p.a >= fullCircle {
-			p.a -= fullCircle
+		p.angle += turnSpeed
+		if p.angle >= fullCircle {
+			p.angle -= fullCircle
 		}
 	}
 
+	// Turn the player right
 	if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
-		p.a -= turnSpeed
-		if p.a < 0 {
-			p.a += fullCircle
+		p.angle -= turnSpeed
+		if p.angle < 0 {
+			p.angle += fullCircle
 		}
 	}
 
+	// Move the player forward, backwards, or strafe
 	if ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW) ||
 		ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) ||
 		ebiten.IsKeyPressed(ebiten.KeyQ) || ebiten.IsKeyPressed(ebiten.KeyE) {
@@ -43,43 +46,69 @@ func (p *Player) processInputs() {
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
-			p.inputDir = DirectionN
+			p.inputDir = DirectionFwd
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
-			p.inputDir = DirectionS
+			p.inputDir = DirectionBack
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyQ) {
-			p.inputDir = DirectionW
+			p.inputDir = DirectionLeft
 		}
 
 		if ebiten.IsKeyPressed(ebiten.KeyE) {
-			p.inputDir = DirectionE
+			p.inputDir = DirectionRight
 		}
 	}
 
-	dx := math.Sin(p.a) * p.speed
-	dy := math.Cos(p.a) * p.speed
+	// Slight optimization: if the player is not moving, don't update the position
+	if p.inputDir >= 0 {
+		// Work out how far to move the player
+		dx := math.Sin(p.angle) * p.speed
+		dy := math.Cos(p.angle) * p.speed
 
-	switch p.inputDir {
-	case DirectionN:
-		p.pos.x += dx
-		p.pos.y += dy
-	case DirectionS:
-		p.pos.x -= dx
-		p.pos.y -= dy
-	case DirectionW:
-		p.pos.x += dy
-		p.pos.y -= dx
-	case DirectionE:
-		p.pos.x -= dy
-		p.pos.y += dx
+		// Move player x,y based on current input
+		switch p.inputDir {
+		case DirectionFwd:
+			p.pos.x += dx
+			p.pos.y += dy
+		case DirectionBack:
+			p.pos.x -= dx
+			p.pos.y -= dy
+		case DirectionLeft:
+			p.pos.x += dy
+			p.pos.y -= dx
+		case DirectionRight:
+			p.pos.x -= dy
+			p.pos.y += dx
+		}
 	}
 
+	// Deceleration logic
 	if p.speed > 0 {
 		p.speed -= accel * 0.5
 	} else {
 		p.inputDir = -1
+	}
+
+	// Float up
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		p.pos.z += 1
+	}
+
+	// Float down
+	if ebiten.IsKeyPressed(ebiten.KeyF) {
+		p.pos.z -= 1
+	}
+
+	// Look up
+	if ebiten.IsKeyPressed(ebiten.KeyPageUp) {
+		p.look += 1
+	}
+
+	// Look down
+	if ebiten.IsKeyPressed(ebiten.KeyPageDown) {
+		p.look -= 1
 	}
 }
